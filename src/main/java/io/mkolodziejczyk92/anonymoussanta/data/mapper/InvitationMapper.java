@@ -12,10 +12,10 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface InvitationMapper {
 
-    InvitationDto mapToInvitation(Invitation invitation);
+    InvitationDto mapToInvitationDto(Invitation invitation);
 
     @InheritInverseConfiguration
-    Invitation mapToInvitationDto(InvitationDto invitationDto);
+    Invitation mapToInvitation(InvitationDto invitationDto);
 
     List<InvitationDto> mapToInvitationDtoList(List<Invitation> invitationList);
 

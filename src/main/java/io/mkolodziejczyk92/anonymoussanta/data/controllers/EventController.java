@@ -3,7 +3,9 @@ package io.mkolodziejczyk92.anonymoussanta.data.controllers;
 import io.mkolodziejczyk92.anonymoussanta.data.entity.Invitation;
 import io.mkolodziejczyk92.anonymoussanta.data.model.EventDto;
 import io.mkolodziejczyk92.anonymoussanta.data.model.InvitationDto;
+import io.mkolodziejczyk92.anonymoussanta.data.repository.EventRepository;
 import io.mkolodziejczyk92.anonymoussanta.data.service.EventService;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +18,12 @@ import java.util.Map;
 @RequestMapping("/event")
 public class EventController {
     private final EventService eventService;
+    private final EventRepository eventRepository;
 
-    public EventController(EventService eventService) {
+    public EventController(EventService eventService,
+                           EventRepository eventRepository) {
         this.eventService = eventService;
+        this.eventRepository = eventRepository;
     }
 
     @PostMapping("/add")
@@ -59,9 +64,24 @@ public class EventController {
         }
     }
 
-//    @PostMapping("/join-to-the-event")
-//    public ResponseEntity<String> joinToTheEvent(@RequestBody Map<String, String> request){
-//        eventService.joinToTheEvent(request);
-//    }
+    @PostMapping("/join-to-the-event")
+    public ResponseEntity<String> joinToTheEvent(@RequestBody Map<String, String> request){
+        try {
+            eventService.joinToTheEvent(request);
+            return ResponseEntity.ok("You joined to the event.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while trying to join the event.");
+        }
+    }
+
+    @PostMapping("/{eventId}/draw")
+    public ResponseEntity<String> performAPairDraw(@PathVariable Long eventId){
+        try {
+            eventService.makeADraw(eventId);
+            return ResponseEntity.ok("The draw has been made");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during the execution of the draw.");
+        }
+    }
 
 }

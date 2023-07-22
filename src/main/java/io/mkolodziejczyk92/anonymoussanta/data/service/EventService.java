@@ -2,17 +2,17 @@ package io.mkolodziejczyk92.anonymoussanta.data.service;
 
 import io.mkolodziejczyk92.anonymoussanta.data.entity.Event;
 import io.mkolodziejczyk92.anonymoussanta.data.entity.Invitation;
+import io.mkolodziejczyk92.anonymoussanta.data.entity.User;
 import io.mkolodziejczyk92.anonymoussanta.data.mapper.EventMapper;
 import io.mkolodziejczyk92.anonymoussanta.data.mapper.InvitationMapper;
 import io.mkolodziejczyk92.anonymoussanta.data.model.EventDto;
 import io.mkolodziejczyk92.anonymoussanta.data.model.InvitationDto;
 import io.mkolodziejczyk92.anonymoussanta.data.repository.EventRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class EventService {
@@ -88,4 +88,44 @@ public class EventService {
     public List<InvitationDto> getAllParticipantsForEventByEventId(Long eventId) {
         return invitationMapper.mapToInvitationDtoList(invitationService.getAllInvitationsForEvent(eventId));
     }
+
+    public void joinToTheEvent(Map<String, String> request) {
+        String eventId = request.get("eventId");
+        String eventPassword = request.get("eventPassword");
+        String userEmail = request.get("userEmail");
+
+        Optional<Event> eventOptional = eventRepository.findById(Long.valueOf(eventId));
+        eventOptional.ifPresentOrElse(event -> {
+            if (event.getEventPassword().equals(eventPassword)) {
+                event.getListOfInvitationForEvent().stream()
+                        .filter(invitation -> invitation.getUser().getEmail().equals(userEmail))
+                        .findFirst().get().setParticipantStatus(true);
+            }
+            eventRepository.save(event);
+        }, () -> {
+            throw new EntityNotFoundException("Event dose not exist.");
+        });
+    }
+
+    public void makeADraw(Long eventId) {
+        Optional<Event> event = eventRepository.findById(eventId);
+        List<Invitation> listOfPeopleInEvent = event.get().getListOfInvitationForEvent();
+        List<User> usersThatReceivePresents = new ArrayList<>();
+
+        Collections.shuffle(listOfPeopleInEvent);
+
+        for (int i = 0; i < listOfPeopleInEvent.size(); i++) {
+            User userWhoGivesPresent = listOfPeopleInEvent.get(i).getUser();
+            User userWhoReceivesPresent = listOfPeopleInEvent.get((i+1) % listOfPeopleInEvent.size()).getUser();
+
+            while (userWhoGivesPresent.equals(userWhoReceivesPresent) || usersThatReceivePresents.contains(userWhoReceivesPresent)) {
+                Collections.rotate(listOfPeopleInEvent, 1);
+                userWhoReceivesPresent = listOfPeopleInEvent.get(i).getUser();
+            }
+
+            usersThatReceivePresents.add(userWhoReceivesPresent);
+
+        }
+    }
 }
+
