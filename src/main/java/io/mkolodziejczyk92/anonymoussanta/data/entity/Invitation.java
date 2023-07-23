@@ -26,9 +26,17 @@ public class Invitation extends IdCreator{
 
     @Column(name = "event_password")
     private String eventPassword;
+
+    @Column(name = "gift_receiver")
+    private String giftReceiver;
+
     @ManyToOne
     private Event event;
 
     @OneToOne
     private User user;
+
+    public String getFullName(){
+        return participantName + " " + participantSurname;
+    }
 }

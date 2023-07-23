@@ -4,10 +4,12 @@ import io.mkolodziejczyk92.anonymoussanta.data.entity.Event;
 import io.mkolodziejczyk92.anonymoussanta.data.entity.Invitation;
 import io.mkolodziejczyk92.anonymoussanta.data.model.InvitationDto;
 import io.mkolodziejczyk92.anonymoussanta.data.repository.InvitationRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class InvitationService {
@@ -16,6 +18,16 @@ public class InvitationService {
 
     public InvitationService(InvitationRepository invitationRepository) {
         this.invitationRepository = invitationRepository;
+    }
+
+    public void setGiftReceiver(Long invitationId, Long receiverId){
+        Optional<Invitation> invitationOptional = invitationRepository.findById(invitationId);
+        invitationOptional.ifPresentOrElse(invitation -> {
+            invitation.setGiftReceiver(invitationRepository.findById(receiverId).get().getFullName());
+            invitationRepository.save(invitation);
+        }, () -> {
+            throw new EntityNotFoundException("Invitation dose not exist.");
+        });
     }
 
     public List<Invitation> createListOfInvitationEntitiesForSavingEvent(List<InvitationDto> listOfInvitationForEvent, Event event) {
