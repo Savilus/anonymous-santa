@@ -16,6 +16,7 @@ public class InvitationDto {
     private String participantEmail;
     private boolean participantStatus;
     private String eventPassword;
+    private String giftReceiver;
     private Event event;
     private User user;
 

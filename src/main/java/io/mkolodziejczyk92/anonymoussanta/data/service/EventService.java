@@ -77,12 +77,33 @@ public class EventService {
 
     public List<EventDto> getAllEventsByUserId(Long id) {
         List<Invitation> allAcceptedUserInvitations = invitationService.getAllUserAcceptedInvitations(id);
-        List<Event> allUserEvents = new ArrayList<>();
+        List<EventDto> allUserEvents = new ArrayList<>();
         for (Invitation invitation : allAcceptedUserInvitations) {
-            allUserEvents.add(invitation.getEvent());
+            Event event = invitation.getEvent();
+            allUserEvents.add(EventDto.builder()
+                    .id(event.getId())
+                    .name(event.getName())
+                    .eventDate(event.getEventDate())
+                    .numberOfPeople(event.getNumberOfPeople())
+                    .budget(event.getBudget())
+                    .currency(event.getCurrency())
+                    .giftReceiverForLogInUser(
+                            invitation.getGiftReceiver() == null ? "The draw has not taken place" : invitation.getGiftReceiver())
+                    .build());
         }
-        allUserEvents.addAll(eventRepository.findByOrganizerId(id));
-        return eventMapper.mapToEventDtoList(allUserEvents);
+        List<Event> eventListWhereLogInUserIsOrganizer = eventRepository.findByOrganizerId(id);
+        for (Event event : eventListWhereLogInUserIsOrganizer) {
+            allUserEvents.add(EventDto.builder()
+                    .id(event.getId())
+                    .name(event.getName())
+                    .eventDate(event.getEventDate())
+                    .numberOfPeople(event.getNumberOfPeople())
+                    .budget(event.getBudget())
+                    .currency(event.getCurrency())
+                    .listOfInvitationForEvent(invitationMapper.mapToInvitationDtoList(event.getListOfInvitationForEvent()))
+                    .build());
+        }
+        return allUserEvents;
     }
 
     public List<InvitationDto> getAllParticipantsForEventByEventId(Long eventId) {
@@ -107,25 +128,45 @@ public class EventService {
         });
     }
 
-    public void makeADraw(Long eventId) {
-        Optional<Event> event = eventRepository.findById(eventId);
-        List<Invitation> listOfPeopleInEvent = event.get().getListOfInvitationForEvent();
-        List<User> usersThatReceivePresents = new ArrayList<>();
-
-        Collections.shuffle(listOfPeopleInEvent);
-
-        for (int i = 0; i < listOfPeopleInEvent.size(); i++) {
-            User userWhoGivesPresent = listOfPeopleInEvent.get(i).getUser();
-            User userWhoReceivesPresent = listOfPeopleInEvent.get((i+1) % listOfPeopleInEvent.size()).getUser();
-
-            while (userWhoGivesPresent.equals(userWhoReceivesPresent) || usersThatReceivePresents.contains(userWhoReceivesPresent)) {
-                Collections.rotate(listOfPeopleInEvent, 1);
-                userWhoReceivesPresent = listOfPeopleInEvent.get(i).getUser();
-            }
-
-            usersThatReceivePresents.add(userWhoReceivesPresent);
-
+    //TODO: send information to participants
+    public void makeDrawAndSendInformationToParticipantsAndSavePairsInDb(Long eventId) {
+        Map<Long, Long> pairsOfDraw = makeADraw(eventId);
+        for (Map.Entry<Long, Long> entry : pairsOfDraw.entrySet()) {
+            Long giver = entry.getKey();
+            Long receiver = entry.getValue();
+            invitationService.setGiftReceiver(giver, receiver);
         }
+
     }
+
+    public Map<Long, Long> makeADraw(Long eventId) {
+        Map<Long, Long> pairsAfterDraw = new HashMap<>();
+        List<Long> invitationsId = new ArrayList<>();
+
+        Optional<Event> eventOptional = eventRepository.findById(eventId);
+        eventOptional.ifPresentOrElse(event -> {
+            event.getListOfInvitationForEvent().stream()
+                    .map(Invitation::getId)
+                    .forEach(invitationsId::add);
+        }, () -> {
+            throw new EntityNotFoundException("Event dose not exist.");
+        });
+
+        Collections.shuffle(invitationsId);
+        int totalParticipants = invitationsId.size();
+
+        for (int i = 0; i < totalParticipants - 1; i++) {
+            Long giverId = invitationsId.get(i);
+            Long receiverId = invitationsId.get(i + 1);
+            pairsAfterDraw.put(giverId, receiverId);
+        }
+        Long firstParticipantId = invitationsId.get(0);
+        Long lastParticipantId = invitationsId.get(totalParticipants - 1);
+        pairsAfterDraw.put(lastParticipantId, firstParticipantId);
+
+        return pairsAfterDraw;
+    }
+
+
 }
 

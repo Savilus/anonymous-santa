@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 public class EventDto {
 
+    private Long id;
     private String name;
     private LocalDate eventDate;
     private Integer numberOfPeople;
@@ -19,5 +20,7 @@ public class EventDto {
     private String currency;
     private String eventPassword;
     private String organizerId;
+    private String giftReceiverForLogInUser;
     private List<InvitationDto> listOfInvitationForEvent;
+
 }

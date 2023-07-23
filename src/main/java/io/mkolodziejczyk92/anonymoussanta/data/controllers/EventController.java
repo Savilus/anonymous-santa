@@ -1,11 +1,9 @@
 package io.mkolodziejczyk92.anonymoussanta.data.controllers;
 
-import io.mkolodziejczyk92.anonymoussanta.data.entity.Invitation;
 import io.mkolodziejczyk92.anonymoussanta.data.model.EventDto;
 import io.mkolodziejczyk92.anonymoussanta.data.model.InvitationDto;
 import io.mkolodziejczyk92.anonymoussanta.data.repository.EventRepository;
 import io.mkolodziejczyk92.anonymoussanta.data.service.EventService;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -77,7 +75,7 @@ public class EventController {
     @PostMapping("/{eventId}/draw")
     public ResponseEntity<String> performAPairDraw(@PathVariable Long eventId){
         try {
-            eventService.makeADraw(eventId);
+            eventService.makeDrawAndSendInformationToParticipantsAndSavePairsInDb(eventId);
             return ResponseEntity.ok("The draw has been made");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during the execution of the draw.");
