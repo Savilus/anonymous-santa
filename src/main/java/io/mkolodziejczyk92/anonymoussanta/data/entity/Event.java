@@ -5,7 +5,6 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @Builder
 @NoArgsConstructor
@@ -27,6 +26,9 @@ public class Event extends IdCreator {
     private Integer budget;
 
     private String currency;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @Column(name = "event_password")
     private String eventPassword;

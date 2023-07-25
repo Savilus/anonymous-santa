@@ -1,11 +1,9 @@
 package io.mkolodziejczyk92.anonymoussanta.data.controllers;
 
-import io.mkolodziejczyk92.anonymoussanta.data.entity.Invitation;
 import io.mkolodziejczyk92.anonymoussanta.data.model.EventDto;
 import io.mkolodziejczyk92.anonymoussanta.data.model.InvitationDto;
 import io.mkolodziejczyk92.anonymoussanta.data.repository.EventRepository;
 import io.mkolodziejczyk92.anonymoussanta.data.service.EventService;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +27,7 @@ public class EventController {
     @PostMapping("/add")
     public ResponseEntity<String> createEvent(@RequestBody EventDto eventDto) {
         try {
-            eventService.sendInvitationsToParticipantsAndSaveEvent(eventDto);
+            eventService.saveEventAndSendInvitationsToParticipants(eventDto);
             return ResponseEntity.ok("Event has been saved.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while trying to save the event.");
