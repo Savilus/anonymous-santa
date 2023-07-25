@@ -29,6 +29,7 @@ public class Invitation extends IdCreator{
 
     @Column(name = "gift_receiver")
     private String giftReceiver;
+
     @ManyToOne
     private Event event;
 
