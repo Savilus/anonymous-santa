@@ -27,6 +27,9 @@ public class Event extends IdCreator {
 
     private String currency;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @Column(name = "event_password")
     private String eventPassword;
 

@@ -19,8 +19,8 @@ public class EventService {
     private final EventRepository eventRepository;
     private final InvitationService invitationService;
     private final UserService userService;
-    private final EventMapper eventMapper;
     private final InvitationMapper invitationMapper;
+    private final MailSander mailSander = new MailSander();
 
     public EventService(EventRepository eventRepository,
                         InvitationService invitationService,
@@ -30,31 +30,36 @@ public class EventService {
         this.eventRepository = eventRepository;
         this.invitationService = invitationService;
         this.userService = userService;
-        this.eventMapper = eventMapper;
         this.invitationMapper = invitationMapper;
     }
 
     @Transactional
-    public void sendInvitationsToParticipantsAndSaveEvent(EventDto eventDto) {
-
-        //TODO: send invitations to participants
-
+    public void saveEventAndSendInvitationsToParticipants(EventDto eventDto) {
         Event event = Event.builder()
                 .name(eventDto.getName())
                 .eventDate(eventDto.getEventDate())
                 .numberOfPeople(eventDto.getNumberOfPeople())
                 .budget(eventDto.getBudget())
                 .currency(eventDto.getCurrency())
+                .imageUrl(pickRandomImage())
                 .eventPassword(getEventPassword())
                 .organizer(userService.getUserById(eventDto.getOrganizerId()))
                 .build();
-
         Event eventWithId = eventRepository.save(event);
         eventWithId.setListOfInvitationForEvent(
                 invitationService.createListOfInvitationEntitiesForSavingEvent(
                         eventDto.getListOfInvitationForEvent(), eventWithId)
         );
         eventRepository.save(eventWithId);
+
+        eventWithId.getListOfInvitationForEvent()
+                .forEach(invitation ->
+                        mailSander.sendEmailWithInvitation(
+                                invitation.getFullName(),
+                                invitation.getEvent().getName(),
+                                String.valueOf(invitation.getEvent().getId()),
+                                invitation.getParticipantEmail(),
+                                invitation.getEventPassword()));
     }
 
     public static String getEventPassword() {
@@ -87,6 +92,7 @@ public class EventService {
                     .numberOfPeople(event.getNumberOfPeople())
                     .budget(event.getBudget())
                     .currency(event.getCurrency())
+                    .imageUrl(event.getImageUrl())
                     .giftReceiverForLogInUser(
                             invitation.getGiftReceiver() == null ? "The draw has not taken place" : invitation.getGiftReceiver())
                     .build());
@@ -100,9 +106,11 @@ public class EventService {
                     .numberOfPeople(event.getNumberOfPeople())
                     .budget(event.getBudget())
                     .currency(event.getCurrency())
+                    .imageUrl(event.getImageUrl())
                     .listOfInvitationForEvent(invitationMapper.mapToInvitationDtoList(event.getListOfInvitationForEvent()))
                     .build());
         }
+
         return allUserEvents;
     }
 
@@ -128,7 +136,8 @@ public class EventService {
         });
     }
 
-    //TODO: send information to participants
+
+    
     public void makeDrawAndSendInformationToParticipantsAndSavePairsInDb(Long eventId) {
         Map<Long, Long> pairsOfDraw = makeADraw(eventId);
         for (Map.Entry<Long, Long> entry : pairsOfDraw.entrySet()) {
@@ -138,6 +147,7 @@ public class EventService {
         }
 
     }
+
 
     public Map<Long, Long> makeADraw(Long eventId) {
         Map<Long, Long> pairsAfterDraw = new HashMap<>();
@@ -167,6 +177,21 @@ public class EventService {
         return pairsAfterDraw;
     }
 
+
+    public void makeDrawAndSendInformationToParticipantsAndSavePairsInDb(Long eventId) {
+        Map<Long, Long> pairsOfDraw = makeADraw(eventId);
+        for (Map.Entry<Long, Long> entry : pairsOfDraw.entrySet()) {
+            Long giver = entry.getKey();
+            Long receiver = entry.getValue();
+            invitationService.setGiftReceiverAndSendEmailToGiver(giver, receiver);
+        }
+    }
+
+    public String pickRandomImage() {
+        Random random = new Random();
+        int imageNumber = random.nextInt(8) + 1;
+        return "pic" + imageNumber;
+    }
 
 }
 

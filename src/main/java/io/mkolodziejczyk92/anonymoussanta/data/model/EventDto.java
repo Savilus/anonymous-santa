@@ -18,6 +18,7 @@ public class EventDto {
     private Integer numberOfPeople;
     private Integer budget;
     private String currency;
+    private String imageUrl;
     private String eventPassword;
     private String organizerId;
     private String giftReceiverForLogInUser;

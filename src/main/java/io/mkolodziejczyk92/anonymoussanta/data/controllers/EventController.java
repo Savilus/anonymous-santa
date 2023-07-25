@@ -27,7 +27,7 @@ public class EventController {
     @PostMapping("/add")
     public ResponseEntity<String> createEvent(@RequestBody EventDto eventDto) {
         try {
-            eventService.sendInvitationsToParticipantsAndSaveEvent(eventDto);
+            eventService.saveEventAndSendInvitationsToParticipants(eventDto);
             return ResponseEntity.ok("Event has been saved.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while trying to save the event.");
