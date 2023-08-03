@@ -2,6 +2,8 @@ package io.mkolodziejczyk92.anonymoussanta.data.service;
 
 import io.mkolodziejczyk92.anonymoussanta.data.entity.Event;
 import io.mkolodziejczyk92.anonymoussanta.data.entity.Invitation;
+import io.mkolodziejczyk92.anonymoussanta.data.entity.User;
+import io.mkolodziejczyk92.anonymoussanta.data.mapper.EventMapper;
 import io.mkolodziejczyk92.anonymoussanta.data.mapper.InvitationMapper;
 import io.mkolodziejczyk92.anonymoussanta.data.model.EventDto;
 import io.mkolodziejczyk92.anonymoussanta.data.model.InvitationDto;
@@ -114,6 +116,7 @@ public class EventService {
                     .listOfInvitationForEvent(invitationMapper.mapToInvitationDtoList(event.getListOfInvitationForEvent()))
                     .build());
         }
+
         return allUserEvents;
     }
 
@@ -154,6 +157,19 @@ public class EventService {
         });
     }
 
+
+    
+    public void makeDrawAndSendInformationToParticipantsAndSavePairsInDb(Long eventId) {
+        Map<Long, Long> pairsOfDraw = makeADraw(eventId);
+        for (Map.Entry<Long, Long> entry : pairsOfDraw.entrySet()) {
+            Long giver = entry.getKey();
+            Long receiver = entry.getValue();
+            invitationService.setGiftReceiver(giver, receiver);
+        }
+
+    }
+
+
     public Map<Long, Long> makeADraw(Long eventId) {
         Map<Long, Long> pairsAfterDraw = new HashMap<>();
         List<Long> invitationsId = new ArrayList<>();
@@ -182,6 +198,7 @@ public class EventService {
         return pairsAfterDraw;
     }
 
+
     @Transactional
     public void makeDrawAndSendInformationToParticipantsAndSavePairsInDb(Long eventId, Long userId) {
         eventRepository.findById(eventId).ifPresentOrElse(event -> {
@@ -199,6 +216,7 @@ public class EventService {
                 () -> {
                     throw new EntityNotFoundException("Event dose not exist.");
                 });
+
     }
 
     public String pickRandomImage() {
@@ -207,4 +225,6 @@ public class EventService {
         return "pic" + imageNumber + ".jpg";
     }
 
+
 }
+

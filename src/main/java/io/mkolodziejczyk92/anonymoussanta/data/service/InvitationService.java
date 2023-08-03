@@ -23,16 +23,19 @@ public class InvitationService {
         this.invitationRepository = invitationRepository;
     }
 
+
     @Transactional
     public void setGiftReceiverAndSendEmailToGiver(Long invitationId, Long receiverId) {
         Optional<Invitation> invitationOptional = invitationRepository.findById(invitationId);
         String receiverFullName = invitationRepository.findById(receiverId).get().getFullName();
         invitationOptional.ifPresentOrElse(invitation -> {
             invitation.setGiftReceiver(receiverFullName);
+
             invitationRepository.save(invitation);
         }, () -> {
             throw new EntityNotFoundException("Invitation dose not exist.");
         });
+
         invitationOptional.ifPresentOrElse(invitation -> {
             mailSander.sendEmailAfterDraw(
                     invitation.getFullName(),
@@ -42,6 +45,7 @@ public class InvitationService {
         }, () -> {
             throw new EntityNotFoundException("Invitation dose not exist.");
         });
+
     }
 
     public List<Invitation> createListOfInvitationEntitiesForSavingEvent(List<InvitationDto> listOfInvitationForEvent, Event event) {
