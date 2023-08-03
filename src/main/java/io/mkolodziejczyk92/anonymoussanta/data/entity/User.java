@@ -37,6 +37,9 @@ public class User extends IdCreator implements UserDetails {
     @OneToMany
     private List<Invitation> invitations;
 
+    @OneToMany
+    private List<Event> events;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
