@@ -23,8 +23,10 @@ public class UserService {
     public  List<UserDto> getAllUsers() {
         return userMapper.mapToUserDtoList(userRepository.findAll());
     }
+
     public User saveUser(UserDto userDto) {
        return  userRepository.save(userMapper.mapToUser(userDto));
+
     }
 
     public void updateUserById(Long id, UserDto userDto) {
@@ -34,7 +36,12 @@ public class UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
     public User getUserById(String organizerId) {
         return userRepository.findById(Long.valueOf(organizerId)).orElseThrow();
+    }
+
+    public Long getUserIdByUsernameAsMail(String email) {
+        return userRepository.findByEmail(email).get().getId();
     }
 }
