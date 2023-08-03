@@ -16,13 +16,11 @@ import java.util.Optional;
 public class InvitationService {
 
     private final InvitationRepository invitationRepository;
-
     private final MailSander mailSander = new MailSander();
 
     public InvitationService(InvitationRepository invitationRepository) {
         this.invitationRepository = invitationRepository;
     }
-
 
     @Transactional
     public void setGiftReceiverAndSendEmailToGiver(Long invitationId, Long receiverId) {
@@ -30,12 +28,10 @@ public class InvitationService {
         String receiverFullName = invitationRepository.findById(receiverId).get().getFullName();
         invitationOptional.ifPresentOrElse(invitation -> {
             invitation.setGiftReceiver(receiverFullName);
-
             invitationRepository.save(invitation);
         }, () -> {
             throw new EntityNotFoundException("Invitation dose not exist.");
         });
-
         invitationOptional.ifPresentOrElse(invitation -> {
             mailSander.sendEmailAfterDraw(
                     invitation.getFullName(),
@@ -45,13 +41,12 @@ public class InvitationService {
         }, () -> {
             throw new EntityNotFoundException("Invitation dose not exist.");
         });
-
     }
 
     public List<Invitation> createListOfInvitationEntitiesForSavingEvent(List<InvitationDto> listOfInvitationForEvent, Event event) {
         List<Invitation> invitationEntities = new ArrayList<>();
-        Invitation invitation = new Invitation();
         for (InvitationDto invitationDto : listOfInvitationForEvent) {
+            Invitation invitation = new Invitation();
             invitation.setParticipantName(invitationDto.getParticipantName());
             invitation.setParticipantSurname(invitationDto.getParticipantSurname());
             invitation.setParticipantEmail(invitationDto.getParticipantEmail());

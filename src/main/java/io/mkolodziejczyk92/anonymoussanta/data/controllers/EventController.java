@@ -29,8 +29,7 @@ public class EventController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> createEvent(@RequestHeader("Authorization") String bearerToken,
-                                              @RequestBody EventDto eventDto) {
+    public ResponseEntity<String> createEvent(@RequestHeader("Authorization") String bearerToken, @RequestBody EventDto eventDto) {
         try {
             String token = bearerToken.substring(7);
             String extractedUsername = jwtService.extractUserName(token);

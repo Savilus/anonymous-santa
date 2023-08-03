@@ -16,16 +16,14 @@ public class MailSander {
             String email,
             String eventCode) {
 
-
         String text = String.format(
                 "Hello %s, \n" +
                         "\tYou have been invited to %s's event. " +
-                        "Please register on our website and join the event by entering: the event id: %s, your email and the event password: %s. " +
+                        "Please register on our website and join the event by entering the event id: %s, your email and the event password: %s. " +
                         "If you already have an account log in and join the event.\n" +
                         "Greetings, \n" +
                         "Anonymous Team",
                 fullName, eventName, eventId, eventCode);
-
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -56,7 +54,6 @@ public class MailSander {
     }
 
     public void sendEmailAfterDraw(
-
             String giverFullName,
             String eventName,
             String email,
@@ -71,19 +68,16 @@ public class MailSander {
                         "Anonymous Team",
                 giverFullName, eventName, receiverFullName);
 
-
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", "smtp.gmail.com");
-
         props.put("mail.smtp.ssl.enable", "true");
         props.put("mail.smtp.port", "465");
 
         Session session = Session.getInstance(props, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(username, appPassword);
-
             }
         });
 
@@ -100,9 +94,7 @@ public class MailSander {
             System.out.println("An error occurred during the send an invitation: " + e.getMessage());
         }
 
-
     }
 
 
 }
-
