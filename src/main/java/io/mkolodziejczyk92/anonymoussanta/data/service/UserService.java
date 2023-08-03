@@ -18,6 +18,7 @@ public class UserService {
     public static List<UserDto> getAllUsers() {
         return null;
     }
+
     public UserDto saveUser(UserDto userDto) {
         return null;
     }
@@ -27,7 +28,12 @@ public class UserService {
 
     public void deleteUser(Long id) {
     }
+
     public User getUserById(String organizerId) {
         return userRepository.findById(Long.valueOf(organizerId)).orElseThrow();
+    }
+
+    public Long getUserIdByUsernameAsMail(String email) {
+        return userRepository.findByEmail(email).get().getId();
     }
 }
