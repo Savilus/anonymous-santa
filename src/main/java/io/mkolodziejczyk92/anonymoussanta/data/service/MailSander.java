@@ -19,7 +19,7 @@ public class MailSander {
         String text = String.format(
                 "Hello %s, \n" +
                         "\tYou have been invited to %s's event. " +
-                        "Please register on our website and join the event by entering: the event id: %s, your email and the event password: %s." +
+                        "Please register on our website and join the event by entering: the event id: %s, your email and the event password: %s. " +
                         "If you already have an account log in and join the event.\n" +
                         "Greetings, \n" +
                         "Anonymous Team",

@@ -3,7 +3,6 @@ package io.mkolodziejczyk92.anonymoussanta.data.controllers;
 import io.mkolodziejczyk92.anonymoussanta.data.config.JwtService;
 import io.mkolodziejczyk92.anonymoussanta.data.model.EventDto;
 import io.mkolodziejczyk92.anonymoussanta.data.model.InvitationDto;
-import io.mkolodziejczyk92.anonymoussanta.data.repository.EventRepository;
 import io.mkolodziejczyk92.anonymoussanta.data.service.EventService;
 import io.mkolodziejczyk92.anonymoussanta.data.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -22,15 +21,21 @@ public class EventController {
     private final UserService userService;
 
     public EventController(EventService eventService,
-                            JwtService jwtService, UserService userService) {
+                           JwtService jwtService,
+                           UserService userService) {
         this.eventService = eventService;
         this.jwtService = jwtService;
         this.userService = userService;
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> createEvent(@RequestBody EventDto eventDto) {
+    public ResponseEntity<String> createEvent(@RequestHeader("Authorization") String bearerToken,
+                                              @RequestBody EventDto eventDto) {
         try {
+            String token = bearerToken.substring(7);
+            String extractedUsername = jwtService.extractUserName(token);
+            Long userId = userService.getUserIdByUsernameAsMail(extractedUsername);
+            eventDto.setOrganizerId(String.valueOf(userId));
             eventService.saveEventAndSendInvitationsToParticipants(eventDto);
             return ResponseEntity.ok("Event has been saved.");
         } catch (Exception e) {
@@ -38,32 +43,32 @@ public class EventController {
         }
     }
 
-    @PostMapping("/user-events/{token}")
+    @GetMapping("/user-events")
     public ResponseEntity<List<EventDto>> getAllEventsForLogInUser(@RequestHeader("Authorization") String bearerToken) {
         try {
             String token = bearerToken.substring(7);
             String extractedUsername = jwtService.extractUserName(token);
             Long userId = userService.getUserIdByUsernameAsMail(extractedUsername);
-            return ResponseEntity.status(HttpStatus.OK).body(eventService.getAllEventsByUserId(bearerToken));
+            return ResponseEntity.status(HttpStatus.OK).body(eventService.getAllEventsByUserId(userId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ArrayList<>());
         }
     }
 
-    @DeleteMapping("/delete/{eventId}")
-    public ResponseEntity<String> deleteEventById(@PathVariable Long eventId) {
+    @DeleteMapping("/delete/{eventId}/{userId}")
+    public ResponseEntity<String> deleteEventById(@PathVariable Long eventId, @PathVariable Long userId) {
         try {
-            eventService.deleteEvent(eventId);
+            eventService.deleteEvent(eventId, userId);
             return ResponseEntity.ok("Event has been deleted");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while trying to delete the event.");
         }
     }
+
     @GetMapping("/participants-by-event-id/{eventId}/{userId}")
-    public ResponseEntity<List<InvitationDto>> getAllParticipantsForEvent(@PathVariable Long eventId,
-                                                                          @PathVariable Long userId) {
+    public ResponseEntity<List<InvitationDto>> getAllParticipantsForEvent(@PathVariable Long eventId, @PathVariable Long userId) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(eventService.getAllParticipantsForEventByEventId(eventId));
+            return ResponseEntity.status(HttpStatus.OK).body(eventService.getAllParticipantsForEventByEventId(eventId, userId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ArrayList<>());
         }
@@ -79,10 +84,10 @@ public class EventController {
         }
     }
 
-    @PostMapping("/{eventId}/draw")
-    public ResponseEntity<String> performAPairDraw(@PathVariable Long eventId){
+    @PostMapping("/draw/{eventId}/{userId}")
+    public ResponseEntity<String> performAPairDraw(@PathVariable Long eventId, @PathVariable Long userId) {
         try {
-            eventService.makeDrawAndSendInformationToParticipantsAndSavePairsInDb(eventId);
+            eventService.makeDrawAndSendInformationToParticipantsAndSavePairsInDb(eventId, userId);
             return ResponseEntity.ok("The draw has been made");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during the execution of the draw.");

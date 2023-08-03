@@ -46,25 +46,29 @@ public class InvitationService {
 
     public List<Invitation> createListOfInvitationEntitiesForSavingEvent(List<InvitationDto> listOfInvitationForEvent, Event event) {
         List<Invitation> invitationEntities = new ArrayList<>();
-        for (InvitationDto invitation : listOfInvitationForEvent) {
-            invitationEntities.add(Invitation.builder()
-                    .participantName(invitation.getParticipantName())
-                    .participantSurname(invitation.getParticipantSurname())
-                    .participantEmail(invitation.getParticipantEmail())
-                    .participantStatus(false)
-                    .eventPassword(null)
-                    .event(event)
-                    .user(null)
-                    .build());
+        Invitation invitation = new Invitation();
+        for (InvitationDto invitationDto : listOfInvitationForEvent) {
+            invitation.setParticipantName(invitationDto.getParticipantName());
+            invitation.setParticipantSurname(invitationDto.getParticipantSurname());
+            invitation.setParticipantEmail(invitationDto.getParticipantEmail());
+            invitation.setParticipantStatus(false);
+            invitation.setEventPassword(null);
+            invitation.setEvent(event);
+            invitation.setUser(null);
+            invitationEntities.add(invitation);
         }
         return invitationEntities;
     }
 
-    public List<Invitation> getAllUserAcceptedInvitations(Long userId){
+    public List<Invitation> getAllUserAcceptedInvitations(Long userId) {
         return invitationRepository.findAllByParticipantStatusIsTrueAndUserId(userId);
     }
 
     public List<Invitation> getAllInvitationsForEvent(Long eventId) {
         return invitationRepository.findAllByEventId(eventId);
+    }
+
+    public void addNewInvitation(Invitation invitation) {
+        invitationRepository.save(invitation);
     }
 }

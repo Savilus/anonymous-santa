@@ -2,7 +2,6 @@ package io.mkolodziejczyk92.anonymoussanta.data.service;
 
 import io.mkolodziejczyk92.anonymoussanta.data.entity.Event;
 import io.mkolodziejczyk92.anonymoussanta.data.entity.Invitation;
-import io.mkolodziejczyk92.anonymoussanta.data.mapper.EventMapper;
 import io.mkolodziejczyk92.anonymoussanta.data.mapper.InvitationMapper;
 import io.mkolodziejczyk92.anonymoussanta.data.model.EventDto;
 import io.mkolodziejczyk92.anonymoussanta.data.model.InvitationDto;
@@ -24,7 +23,6 @@ public class EventService {
     public EventService(EventRepository eventRepository,
                         InvitationService invitationService,
                         UserService userService,
-                        EventMapper eventMapper,
                         InvitationMapper invitationMapper) {
         this.eventRepository = eventRepository;
         this.invitationService = invitationService;
@@ -44,21 +42,19 @@ public class EventService {
                 .eventPassword(getEventPassword())
                 .organizer(userService.getUserById(eventDto.getOrganizerId()))
                 .build();
-        Event eventWithId = eventRepository.save(event);
-        eventWithId.setListOfInvitationForEvent(
-                invitationService.createListOfInvitationEntitiesForSavingEvent(
-                        eventDto.getListOfInvitationForEvent(), eventWithId)
-        );
-        eventRepository.save(eventWithId);
 
-        eventWithId.getListOfInvitationForEvent()
-                .forEach(invitation ->
-                        mailSander.sendEmailWithInvitation(
-                                invitation.getFullName(),
-                                invitation.getEvent().getName(),
-                                String.valueOf(invitation.getEvent().getId()),
-                                invitation.getParticipantEmail(),
-                                invitation.getEventPassword()));
+        Event eventWithId = eventRepository.save(event);
+        List<Invitation> listOfInvitationEntitiesForSavingEvent =
+                invitationService.createListOfInvitationEntitiesForSavingEvent(eventDto.getListOfInvitationForEvent(), eventWithId);
+        for (Invitation invitation : listOfInvitationEntitiesForSavingEvent) {
+            invitationService.addNewInvitation(invitation);
+            mailSander.sendEmailWithInvitation(
+                    invitation.getFullName(),
+                    eventWithId.getName(),
+                    String.valueOf(invitation.getEvent().getId()),
+                    invitation.getParticipantEmail(),
+                    eventWithId.getEventPassword());
+        }
     }
 
     public static String getEventPassword() {
@@ -75,8 +71,17 @@ public class EventService {
         return password.toString();
     }
 
-    public void deleteEvent(Long id) {
-        eventRepository.deleteById(id);
+    public void deleteEvent(Long eventId, Long userId) {
+        eventRepository.findById(eventId).ifPresentOrElse(event -> {
+                    if (event.getOrganizer().getId().equals(userId)) {
+                        eventRepository.deleteById(eventId);
+                    } else {
+                        throw new RuntimeException("Only organizer can delete an event.");
+                    }
+                },
+                () -> {
+                    throw new EntityNotFoundException("Event dose not exist.");
+                });
     }
 
     public List<EventDto> getAllEventsByUserId(Long id) {
@@ -112,8 +117,23 @@ public class EventService {
         return allUserEvents;
     }
 
-    public List<InvitationDto> getAllParticipantsForEventByEventId(Long eventId) {
-        return invitationMapper.mapToInvitationDtoList(invitationService.getAllInvitationsForEvent(eventId));
+    public List<InvitationDto> getAllParticipantsForEventByEventId(Long eventId, Long userId) {
+        List<InvitationDto> invitationDtoList = new ArrayList<>();
+        eventRepository.findById(eventId).ifPresentOrElse(event -> {
+            if (event.getOrganizer().getId().equals(userId)) {
+                List<Invitation> allInvitationsForEvent = invitationService.getAllInvitationsForEvent(eventId);
+                allInvitationsForEvent.forEach(invitation -> invitationDtoList.add(InvitationDto.builder()
+                        .participantName(invitation.getParticipantName())
+                        .participantSurname(invitation.getParticipantSurname())
+                        .participantEmail(invitation.getParticipantEmail())
+                        .participantStatus(invitation.isParticipantStatus()).build()));
+            } else {
+                throw new RuntimeException("Only organizer can see participants.");
+            }
+        }, () -> {
+            throw new EntityNotFoundException("Event dose not exist.");
+        });
+        return invitationDtoList;
     }
 
     public void joinToTheEvent(Map<String, String> request) {
@@ -162,18 +182,29 @@ public class EventService {
         return pairsAfterDraw;
     }
 
-    public void makeDrawAndSendInformationToParticipantsAndSavePairsInDb(Long eventId) {
-        Map<Long, Long> pairsOfDraw = makeADraw(eventId);
-        for (Map.Entry<Long, Long> entry : pairsOfDraw.entrySet()) {
-            Long giver = entry.getKey();
-            Long receiver = entry.getValue();
-            invitationService.setGiftReceiverAndSendEmailToGiver(giver, receiver);
-        }
+    @Transactional
+    public void makeDrawAndSendInformationToParticipantsAndSavePairsInDb(Long eventId, Long userId) {
+        eventRepository.findById(eventId).ifPresentOrElse(event -> {
+                    if (event.getOrganizer().getId().equals(userId)) {
+                        Map<Long, Long> pairsOfDraw = makeADraw(eventId);
+                        for (Map.Entry<Long, Long> entry : pairsOfDraw.entrySet()) {
+                            Long giver = entry.getKey();
+                            Long receiver = entry.getValue();
+                            invitationService.setGiftReceiverAndSendEmailToGiver(giver, receiver);
+                        }
+                    } else {
+                        throw new RuntimeException("Only organizer can make a draw.");
+                    }
+                },
+                () -> {
+                    throw new EntityNotFoundException("Event dose not exist.");
+                });
     }
 
     public String pickRandomImage() {
         Random random = new Random();
         int imageNumber = random.nextInt(8) + 1;
-        return "pic" + imageNumber;
+        return "pic" + imageNumber + ".jpg";
     }
+
 }
