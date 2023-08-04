@@ -5,6 +5,7 @@ import io.mkolodziejczyk92.anonymoussanta.data.entity.Invitation;
 import io.mkolodziejczyk92.anonymoussanta.data.model.InvitationDto;
 import io.mkolodziejczyk92.anonymoussanta.data.repository.InvitationRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.hibernate.dialect.unique.CreateTableUniqueDelegate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,7 +68,7 @@ public class InvitationService {
         return invitationRepository.findAllByEventId(eventId);
     }
 
-    public void addNewInvitation(Invitation invitation) {
-        invitationRepository.save(invitation);
+    public Invitation addNewInvitation(Invitation invitation) {
+       return invitationRepository.save(invitation);
     }
 }

@@ -33,7 +33,7 @@ public class Invitation extends IdCreator{
     @ManyToOne
     private Event event;
 
-    @OneToOne
+    @ManyToOne
     private User user;
 
     public String getFullName(){
