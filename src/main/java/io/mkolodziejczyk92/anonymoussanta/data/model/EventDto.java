@@ -2,7 +2,7 @@ package io.mkolodziejczyk92.anonymoussanta.data.model;
 
 import lombok.*;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @NoArgsConstructor
@@ -14,12 +14,12 @@ public class EventDto {
 
     private Long id;
     private String name;
-    private LocalDate eventDate;
+    private Date eventDate;
     private Integer numberOfPeople;
     private Integer budget;
     private String currency;
     private String imageUrl;
-    private String eventPassword;
+    private List<String> eventPasswords;
     private String organizerId;
     private String giftReceiverForLogInUser;
     private List<InvitationDto> listOfInvitationForEvent;

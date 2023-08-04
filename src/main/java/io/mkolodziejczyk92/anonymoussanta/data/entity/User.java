@@ -34,12 +34,11 @@ public class User extends IdCreator implements UserDetails {
     @Enumerated(EnumType.STRING)
     private ERole role;
 
-    @OneToMany
+    @OneToMany(mappedBy = "user")
     private List<Invitation> invitations;
 
     @OneToMany
     private List<Event> events;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

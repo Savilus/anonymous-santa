@@ -3,7 +3,7 @@ package io.mkolodziejczyk92.anonymoussanta.data.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Builder
@@ -18,7 +18,7 @@ public class Event extends IdCreator {
     private String name;
 
     @Column(name = "event_date")
-    private LocalDate eventDate;
+    private Date eventDate;
 
     @Column(name = "number_of_people")
     private Integer numberOfPeople;
@@ -30,8 +30,7 @@ public class Event extends IdCreator {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(name = "event_password")
-    private String eventPassword;
+    private List<String> eventPasswords;
 
     @OneToMany(mappedBy = "event")
     private List<Invitation> listOfInvitationForEvent;
