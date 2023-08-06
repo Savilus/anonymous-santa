@@ -56,7 +56,6 @@ public class EventService {
     }
 
 
-
     public void deleteEvent(Long eventId, Long userId) {
         eventRepository.findById(eventId).ifPresentOrElse(event -> {
                     if (event.getOrganizer().getId().equals(userId)) {
@@ -99,7 +98,7 @@ public class EventService {
                     .currency(event.getCurrency())
                     .imageUrl(event.getImageUrl())
                     .organizerId(String.valueOf(id))
-                    .listOfInvitationForEvent(mapInvitationListToInvitationDtoList(event.getListOfInvitationForEvent()))
+                    .logInUserIsAnOrganizer(id.equals(event.getOrganizer().getId()))
                     .build());
         }
         return allUserEvents;
@@ -173,7 +172,7 @@ public class EventService {
 
     private List<InvitationDto> mapInvitationListToInvitationDtoList(List<Invitation> listOfInvitationForEvent) {
         List<InvitationDto> invitationsForEvent = new ArrayList<>();
-        for(Invitation invitation : listOfInvitationForEvent){
+        for (Invitation invitation : listOfInvitationForEvent) {
             invitationsForEvent.add(InvitationDto.builder()
                     .participantName(invitation.getParticipantName())
                     .participantSurname(invitation.getParticipantSurname())
@@ -218,7 +217,7 @@ public class EventService {
     private List<String> createPasswordsForInvitations(EventDto eventDto) {
         int numberOfInvitations = eventDto.getListOfInvitationForEvent().size();
         List<String> passwordsForInvitations = new ArrayList<>();
-        for(int numberOfInvitationsSent = 0; numberOfInvitations > numberOfInvitationsSent; numberOfInvitationsSent++){
+        for (int numberOfInvitationsSent = 0; numberOfInvitations > numberOfInvitationsSent; numberOfInvitationsSent++) {
             passwordsForInvitations.add(getEventPassword());
         }
         return passwordsForInvitations;
