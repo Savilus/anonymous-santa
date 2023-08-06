@@ -105,7 +105,7 @@ public class EventService {
     }
 
 
-    public List<InvitationDto> getAllParticipantsForEventByEventId(Long eventId, Long userId) {
+    public List<InvitationDto> getAllParticipantsForEventByEventId(Long userId, Long eventId) {
         List<InvitationDto> invitationDtoList = new ArrayList<>();
         eventRepository.findById(eventId).ifPresentOrElse(event -> {
             if (event.getOrganizer().getId().equals(userId)) {
@@ -168,21 +168,6 @@ public class EventService {
         Random random = new Random();
         int imageNumber = random.nextInt(8) + 1;
         return "pic" + imageNumber + ".jpg";
-    }
-
-    private List<InvitationDto> mapInvitationListToInvitationDtoList(List<Invitation> listOfInvitationForEvent) {
-        List<InvitationDto> invitationsForEvent = new ArrayList<>();
-        for (Invitation invitation : listOfInvitationForEvent) {
-            invitationsForEvent.add(InvitationDto.builder()
-                    .participantName(invitation.getParticipantName())
-                    .participantSurname(invitation.getParticipantSurname())
-                    .participantEmail(invitation.getParticipantEmail())
-                    .participantStatus(invitation.isParticipantStatus())
-                    .eventPassword(invitation.getEventPassword())
-                    .giftReceiver(invitation.getGiftReceiver())
-                    .build());
-        }
-        return invitationsForEvent;
     }
 
 
