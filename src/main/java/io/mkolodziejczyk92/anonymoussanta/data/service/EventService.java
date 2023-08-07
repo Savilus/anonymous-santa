@@ -5,6 +5,7 @@ import io.mkolodziejczyk92.anonymoussanta.data.entity.Invitation;
 import io.mkolodziejczyk92.anonymoussanta.data.model.EventDto;
 import io.mkolodziejczyk92.anonymoussanta.data.model.InvitationDto;
 import io.mkolodziejczyk92.anonymoussanta.data.repository.EventRepository;
+import io.mkolodziejczyk92.anonymoussanta.data.repository.InvitationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,14 +15,16 @@ import java.util.*;
 @Service
 public class EventService {
     private final EventRepository eventRepository;
+    private final InvitationRepository invitationRepository;
     private final InvitationService invitationService;
     private final UserService userService;
     private final MailSander mailSander = new MailSander();
 
     public EventService(EventRepository eventRepository,
-                        InvitationService invitationService,
+                        InvitationRepository invitationRepository, InvitationService invitationService,
                         UserService userService) {
         this.eventRepository = eventRepository;
+        this.invitationRepository = invitationRepository;
         this.invitationService = invitationService;
         this.userService = userService;
     }
@@ -57,16 +60,16 @@ public class EventService {
 
 
     public void deleteEvent(Long eventId, Long userId) {
-        eventRepository.findById(eventId).ifPresentOrElse(event -> {
-                    if (event.getOrganizer().getId().equals(userId)) {
-                        eventRepository.deleteById(eventId);
-                    } else {
-                        throw new RuntimeException("Only organizer can delete an event.");
-                    }
-                },
-                () -> {
-                    throw new EntityNotFoundException("Event dose not exist.");
-                });
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException("Event does not exist."));
+
+        if (!event.getOrganizer().getId().equals(userId)) {
+            throw new RuntimeException("Only the organizer can delete an event.");
+        }
+
+        List<Invitation> invitations = event.getListOfInvitationForEvent();
+        invitationRepository.deleteAll(invitations);
+
+        eventRepository.deleteById(eventId);
     }
 
     public List<EventDto> getAllEventsByUserId(Long id) {
@@ -167,7 +170,7 @@ public class EventService {
     private String pickRandomImage() {
         Random random = new Random();
         int imageNumber = random.nextInt(8) + 1;
-        return "pic" + imageNumber + ".jpg";
+        return String.valueOf(imageNumber);
     }
 
 

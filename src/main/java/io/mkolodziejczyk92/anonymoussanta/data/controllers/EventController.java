@@ -54,9 +54,13 @@ public class EventController {
         }
     }
 
-    @DeleteMapping("/delete/{eventId}/{userId}")
-    public ResponseEntity<String> deleteEventById(@PathVariable Long eventId, @PathVariable Long userId) {
+    @DeleteMapping("/delete/{eventId}")
+    public ResponseEntity<String> deleteEventById(@PathVariable(name = "eventId") Long eventId,
+                                                  @RequestHeader("Authorization") String bearerToken) {
         try {
+            String token = bearerToken.substring(7);
+            String extractedUsername = jwtService.extractUserName(token);
+            Long userId = userService.getUserIdByUsernameAsMail(extractedUsername);
             eventService.deleteEvent(eventId, userId);
             return ResponseEntity.ok("Event has been deleted");
         } catch (Exception e) {
