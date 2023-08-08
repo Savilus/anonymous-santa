@@ -40,21 +40,21 @@ public class EventService {
                 .budget(eventDto.getBudget())
                 .currency(eventDto.getCurrency())
                 .imageUrl(pickRandomImage())
-                .eventPasswords(passwordsForInvitations)
                 .organizer(userService.getUserById(eventDto.getOrganizerId()))
                 .build();
 
         Event eventWithId = eventRepository.save(event);
         List<Invitation> listOfInvitationEntitiesForSavingEvent =
                 invitationService.createListOfInvitationEntitiesForSavingEvent(eventDto.getListOfInvitationForEvent(), eventWithId);
-        for (int invitationIndex = 0; invitationIndex < listOfInvitationEntitiesForSavingEvent.size(); invitationIndex++) {
-            Invitation invitation = invitationService.addNewInvitation(listOfInvitationEntitiesForSavingEvent.get(invitationIndex));
+
+        for (Invitation value : listOfInvitationEntitiesForSavingEvent) {
+            Invitation invitation = invitationService.addNewInvitation(value);
             mailSander.sendEmailWithInvitation(
                     invitation.getFullName(),
                     eventWithId.getName(),
                     String.valueOf(invitation.getEvent().getId()),
                     invitation.getParticipantEmail(),
-                    passwordsForInvitations.get(invitationIndex));
+                    invitation.getInvitationPassword());
         }
     }
 
@@ -86,7 +86,8 @@ public class EventService {
                     .currency(event.getCurrency())
                     .imageUrl(event.getImageUrl())
                     .giftReceiverForLogInUser(
-                            invitation.getGiftReceiver() == null ? "The draw has not taken place" : invitation.getGiftReceiver())
+                            invitation.getGiftReceiver() == null ?
+                                    "The draw has not taken place" : "Let's buy gift for: " + invitation.getGiftReceiver())
                     .build());
         }
         List<Event> eventListWhereLogInUserIsOrganizer = eventRepository.findByOrganizerId(id);
@@ -129,22 +130,28 @@ public class EventService {
 
     public void joinToTheEvent(Map<String, String> request) {
         String eventId = request.get("eventID");
-        String eventPassword = request.get("eventPassword");
+        String invitationPassword = request.get("eventPassword");
         String userEmail = request.get("userEmail");
         Optional<Event> eventOptional = eventRepository.findById(Long.valueOf(eventId));
         eventOptional.ifPresentOrElse(event -> {
-            if (event.getEventPasswords().contains(eventPassword)) {
-                event.getListOfInvitationForEvent().stream()
+            boolean isInputDataCorrect = event.getListOfInvitationForEvent()
+                    .stream()
+                    .anyMatch(invitation -> invitation.getInvitationPassword().equals(invitationPassword)
+                            && invitation.getParticipantEmail().equals(userEmail));
+
+            if (isInputDataCorrect) {
+                event.getListOfInvitationForEvent()
+                        .stream()
                         .filter(invitation -> invitation.getParticipantEmail().equals(userEmail))
-                        .findAny()
+                        .findFirst()
                         .ifPresent(invitation -> {
                             invitation.setUser(userService.getUserByEmail(userEmail));
                             invitation.setParticipantStatus(true);
                         });
+                eventRepository.save(event);
             }
-            eventRepository.save(event);
         }, () -> {
-            throw new EntityNotFoundException("Event dose not exist.");
+            throw new EntityNotFoundException("Event does not exist.");
         });
     }
 

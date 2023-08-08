@@ -91,9 +91,13 @@ public class EventController {
         }
     }
 
-    @PostMapping("/draw/{eventId}/{userId}")
-    public ResponseEntity<String> performAPairDraw(@PathVariable Long eventId, @PathVariable Long userId) {
+    @PostMapping("/draw/{eventId}")
+    public ResponseEntity<String> performAPairDraw(@PathVariable Long eventId,
+                                                   @RequestHeader("Authorization") String bearerToken) {
         try {
+            String token = bearerToken.substring(7);
+            String extractedUsername = jwtService.extractUserName(token);
+            Long userId = userService.getUserIdByUsernameAsMail(extractedUsername);
             eventService.makeDrawAndSendInformationToParticipantsAndSavePairsInDb(eventId, userId);
             return ResponseEntity.ok("The draw has been made");
         } catch (Exception e) {

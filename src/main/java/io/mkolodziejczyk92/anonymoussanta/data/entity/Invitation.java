@@ -24,8 +24,8 @@ public class Invitation extends IdCreator{
     @Column(name = "participant_status")
     private boolean participantStatus;
 
-    @Column(name = "event_password")
-    private String eventPassword;
+    @Column(name = "invitation_password")
+    private String invitationPassword;
 
     @Column(name = "gift_receiver")
     private String giftReceiver;
