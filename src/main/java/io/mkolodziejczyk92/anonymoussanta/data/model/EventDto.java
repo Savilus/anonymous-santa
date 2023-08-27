@@ -23,5 +23,6 @@ public class EventDto {
     private String giftReceiverForLogInUser;
     private List<InvitationDto> listOfInvitationForEvent;
     private boolean logInUserIsAnOrganizer;
+    private boolean afterDraw;
 
 }

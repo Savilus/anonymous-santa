@@ -12,18 +12,20 @@ public class MailSander {
     public void sendEmailWithInvitation(
             String fullName,
             String eventName,
-            String eventId,
             String email,
             String eventCode) {
 
         String text = String.format(
-                "Hello %s, \n" +
+                "Hello %s, \n\n" +
                         "\tYou have been invited to %s's event. " +
-                        "Please register on our website and join the event by entering the event id: %s, your email and the event password: %s. " +
-                        "If you already have an account log in and join the event.\n" +
+                        "Please register on our website and join the event by entering:\n" +
+                        "- the event name: %s\n" +
+                        "- your email\n" +
+                        "- the event password: %s\n" +
+                        "If you already have an account just log in and join the Event.\n\n" +
                         "Greetings, \n" +
                         "Anonymous Team",
-                fullName, eventName, eventId, eventCode);
+                fullName, eventName, eventName, eventCode);
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -56,17 +58,16 @@ public class MailSander {
     public void sendEmailAfterDraw(
             String giverFullName,
             String eventName,
-            String email,
-            String receiverFullName) {
+            String email) {
 
         String text = String.format(
-                "Hello %s, \n" +
-                        "\tThe event %s you have joined has just begun its next phase. " +
-                        "We have drawn a person for whom you will be an anonymous Santa this year and it is %s." +
-                        "Log in and see who you will buy a gift for!\n" +
+                "Hello %s,\n\n" +
+                        "\tThe event %s you have joined has just begun its next phase.\n " +
+                        "We have drawn a person for whom you will be an anonymous Santa this year.\n" +
+                        "Log in and see who you will buy a gift for!\n\n" +
                         "Greetings, \n" +
                         "Anonymous Team",
-                giverFullName, eventName, receiverFullName);
+                giverFullName, eventName);
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
