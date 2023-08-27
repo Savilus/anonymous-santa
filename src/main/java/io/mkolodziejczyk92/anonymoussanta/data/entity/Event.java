@@ -27,6 +27,8 @@ public class Event extends IdCreator {
 
     private String currency;
 
+    private boolean afterDraw;
+
     @Column(name = "image_url")
     private String imageUrl;
 
