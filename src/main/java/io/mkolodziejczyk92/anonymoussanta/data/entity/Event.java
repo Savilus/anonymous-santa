@@ -17,6 +17,9 @@ public class Event extends IdCreator {
 
     private String name;
 
+    @Column(name = "event_code")
+    private String eventCode;
+
     @Column(name = "event_date")
     private Date eventDate;
 

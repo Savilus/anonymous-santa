@@ -51,7 +51,7 @@ public class InvitationService {
             invitation.setParticipantSurname(invitationDto.getParticipantSurname());
             invitation.setParticipantEmail(invitationDto.getParticipantEmail());
             invitation.setParticipantStatus(false);
-            invitation.setInvitationPassword(getInvitationPassword());
+            invitation.setInvitationPassword(getAccessPassword());
             invitation.setEvent(event);
             invitation.setUser(null);
             invitationEntities.add(invitation);
@@ -71,7 +71,7 @@ public class InvitationService {
         return invitationRepository.save(invitation);
     }
 
-    private static String getInvitationPassword() {
+    public static String getAccessPassword() {
         final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         final int PASSWORD_LENGTH = 10;
         StringBuilder password = new StringBuilder();

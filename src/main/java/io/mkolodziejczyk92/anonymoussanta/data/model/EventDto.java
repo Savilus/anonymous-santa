@@ -24,5 +24,6 @@ public class EventDto {
     private List<InvitationDto> listOfInvitationForEvent;
     private boolean logInUserIsAnOrganizer;
     private boolean afterDraw;
+    private String eventCode;
 
 }

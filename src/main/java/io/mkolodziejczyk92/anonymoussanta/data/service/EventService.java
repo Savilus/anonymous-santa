@@ -38,6 +38,7 @@ public class EventService {
                 .budget(eventDto.getBudget())
                 .currency(eventDto.getCurrency())
                 .imageUrl(pickRandomImage())
+                .eventCode(InvitationService.getAccessPassword())
                 .organizer(userService.getUserById(eventDto.getOrganizerId()))
                 .build();
 
@@ -49,6 +50,7 @@ public class EventService {
             mailSander.sendEmailWithInvitation(
                     invitation.getFullName(),
                     eventWithId.getName(),
+                    invitation.getEvent().getEventCode(),
                     invitation.getParticipantEmail(),
                     invitation.getInvitationPassword());
         }
@@ -127,33 +129,31 @@ public class EventService {
     }
 
     public void joinToTheEvent(Map<String, String> request) {
-        String eventName = request.get("eventName");
+        String eventCode = request.get("eventCode");
         String invitationPassword = request.get("eventPassword");
         String userEmail = request.get("userEmail");
+        Long eventIdFromInput = eventRepository.findByEventCode(eventCode).getId();
+        Optional<Event> eventOptional = eventRepository.findById(eventIdFromInput);
+        eventOptional.ifPresentOrElse(event -> {
+            boolean isInputDataCorrect = event.getListOfInvitationForEvent()
+                    .stream()
+                    .anyMatch(invitation -> invitation.getInvitationPassword().equals(invitationPassword)
+                            && invitation.getParticipantEmail().equals(userEmail));
 
-        List<Event> eventsByName = eventRepository.findByName(eventName);
-
-        for (Event event : eventsByName) {
-            if (event != null) {
-                boolean isInputDataCorrect = event.getListOfInvitationForEvent()
+            if (isInputDataCorrect) {
+                event.getListOfInvitationForEvent()
                         .stream()
-                        .anyMatch(invitation -> invitation.getInvitationPassword().equals(invitationPassword)
-                                && invitation.getParticipantEmail().equals(userEmail));
-
-                if (isInputDataCorrect) {
-                    event.getListOfInvitationForEvent()
-                            .stream()
-                            .filter(invitation -> invitation.getParticipantEmail().equals(userEmail))
-                            .findFirst()
-                            .ifPresent(invitation -> {
-                                invitation.setUser(userService.getUserByEmail(userEmail));
-                                invitation.setParticipantStatus(true);
-                            });
-                    eventRepository.save(event);
-                }
+                        .filter(invitation -> invitation.getParticipantEmail().equals(userEmail))
+                        .findFirst()
+                        .ifPresent(invitation -> {
+                            invitation.setUser(userService.getUserByEmail(userEmail));
+                            invitation.setParticipantStatus(true);
+                        });
+                eventRepository.save(event);
             }
-        }
-
+        }, () -> {
+            throw new EntityNotFoundException("Event does not exist.");
+        });
     }
 
     @Transactional
