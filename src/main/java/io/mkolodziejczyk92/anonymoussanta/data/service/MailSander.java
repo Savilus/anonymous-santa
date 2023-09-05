@@ -12,6 +12,7 @@ public class MailSander {
     public void sendEmailWithInvitation(
             String fullName,
             String eventName,
+            String eventId,
             String email,
             String eventCode) {
 
@@ -19,13 +20,13 @@ public class MailSander {
                 "Hello %s, \n\n" +
                         "\tYou have been invited to %s's event. " +
                         "Please register on our website and join the event by entering:\n" +
-                        "- the event name: %s\n" +
+                        "- the event access id: %s\n" +
                         "- your email\n" +
                         "- the event password: %s\n" +
                         "If you already have an account just log in and join the Event.\n\n" +
                         "Greetings, \n" +
                         "Anonymous Team",
-                fullName, eventName, eventName, eventCode);
+                fullName, eventName, eventId, eventCode);
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
