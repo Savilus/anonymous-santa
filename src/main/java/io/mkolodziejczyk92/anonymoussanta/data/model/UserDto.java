@@ -3,6 +3,7 @@ package io.mkolodziejczyk92.anonymoussanta.data.model;
 import io.mkolodziejczyk92.anonymoussanta.data.enums.ERole;
 import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -18,4 +19,5 @@ public class UserDto {
     private String firstName;
     private String lastName;
     private Set<ERole> userRoles;
+    private List<String> preferredGifts;
 }

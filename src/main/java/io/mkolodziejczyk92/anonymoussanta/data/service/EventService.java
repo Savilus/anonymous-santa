@@ -2,6 +2,7 @@ package io.mkolodziejczyk92.anonymoussanta.data.service;
 
 import io.mkolodziejczyk92.anonymoussanta.data.entity.Event;
 import io.mkolodziejczyk92.anonymoussanta.data.entity.Invitation;
+import io.mkolodziejczyk92.anonymoussanta.data.entity.User;
 import io.mkolodziejczyk92.anonymoussanta.data.model.EventDto;
 import io.mkolodziejczyk92.anonymoussanta.data.model.InvitationDto;
 import io.mkolodziejczyk92.anonymoussanta.data.repository.EventRepository;
@@ -84,9 +85,7 @@ public class EventService {
                     .budget(event.getBudget())
                     .currency(event.getCurrency())
                     .imageUrl(event.getImageUrl())
-                    .giftReceiverForLogInUser(
-                            invitation.getGiftReceiver() ==
-                                    null ? "The draw has not taken place." : "Let's buy gift for: " + invitation.getGiftReceiver())
+                    .giftReceiverForLogInUser(getGiftReceiverInformation(invitation.getGiftReceiver()))
                     .afterDraw(event.isAfterDraw())
                     .build());
         }
@@ -106,6 +105,38 @@ public class EventService {
                     .build());
         }
         return allUserEvents;
+    }
+
+    private String getGiftReceiverInformation(String giftReceiver) {
+        if(giftReceiver == null){
+            return "The draw has not taken place.";
+        }
+
+        User userByEmail = userService.getUserByEmail(giftReceiver);
+        if(userByEmail.getPreferredGifts() == null){
+            return "Let's buy gift for " + userByEmail.getFirstName() + " " + userByEmail.getLastName() +
+                    ". Unfortunately, this person did not choose what gifts he wanted to get.";
+        } else {
+            StringBuilder message = new StringBuilder("Let's buy gift for " + userByEmail.getFirstName() + " " + userByEmail.getLastName() + ". This person prefers to get ");
+
+            List<String> preferredGifts = userByEmail.getPreferredGifts();
+
+           if (preferredGifts.size() == 1) {
+                message.append(preferredGifts.get(0)).append(".");
+            } else {
+                for (int i = 0; i < preferredGifts.size(); i++) {
+                    message.append(preferredGifts.get(i));
+                    if (i < preferredGifts.size() - 1) {
+                        message.append(", ");
+                    } else {
+                        message.append(".");
+                    }
+                }
+            }
+            return message.toString();
+        }
+
+
     }
 
 
