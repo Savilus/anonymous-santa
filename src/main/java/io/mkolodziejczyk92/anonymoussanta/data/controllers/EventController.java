@@ -31,9 +31,7 @@ public class EventController {
     @PostMapping("/add")
     public ResponseEntity<String> createEvent(@RequestHeader("Authorization") String bearerToken, @RequestBody EventDto eventDto) {
         try {
-            String token = bearerToken.substring(7);
-            String extractedUsername = jwtService.extractUserName(token);
-            Long userId = userService.getUserIdByUsernameAsMail(extractedUsername);
+            Long userId = userService.getUserIdFromToken(bearerToken);
             eventDto.setOrganizerId(String.valueOf(userId));
             eventService.saveEventAndSendInvitationsToParticipants(eventDto);
             return ResponseEntity.ok("Event has been saved.");
@@ -45,9 +43,7 @@ public class EventController {
     @GetMapping("/user-events")
     public ResponseEntity<List<EventDto>> getAllEventsForLogInUser(@RequestHeader("Authorization") String bearerToken) {
         try {
-            String token = bearerToken.substring(7);
-            String extractedUsername = jwtService.extractUserName(token);
-            Long userId = userService.getUserIdByUsernameAsMail(extractedUsername);
+            Long userId = userService.getUserIdFromToken(bearerToken);
             return ResponseEntity.status(HttpStatus.OK).body(eventService.getAllEventsByUserId(userId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ArrayList<>());
@@ -58,9 +54,7 @@ public class EventController {
     public ResponseEntity<String> deleteEventById(@PathVariable(name = "eventId") Long eventId,
                                                   @RequestHeader("Authorization") String bearerToken) {
         try {
-            String token = bearerToken.substring(7);
-            String extractedUsername = jwtService.extractUserName(token);
-            Long userId = userService.getUserIdByUsernameAsMail(extractedUsername);
+            Long userId = userService.getUserIdFromToken(bearerToken);
             eventService.deleteEvent(eventId, userId);
             return ResponseEntity.ok("Event has been deleted");
         } catch (Exception e) {
@@ -72,9 +66,7 @@ public class EventController {
     public ResponseEntity<List<InvitationDto>> getAllParticipantsForEvent(@RequestHeader("Authorization") String bearerToken,
                                                                           @PathVariable(name = "eventId") Long eventId) {
         try {
-            String token = bearerToken.substring(7);
-            String extractedUsername = jwtService.extractUserName(token);
-            Long userId = userService.getUserIdByUsernameAsMail(extractedUsername);
+            Long userId = userService.getUserIdFromToken(bearerToken);
             return ResponseEntity.status(HttpStatus.OK).body(eventService.getAllParticipantsForEventByEventId(userId, eventId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ArrayList<>());
@@ -95,9 +87,7 @@ public class EventController {
     public ResponseEntity<String> performAPairDraw(@PathVariable Long eventId,
                                                    @RequestHeader("Authorization") String bearerToken) {
         try {
-            String token = bearerToken.substring(7);
-            String extractedUsername = jwtService.extractUserName(token);
-            Long userId = userService.getUserIdByUsernameAsMail(extractedUsername);
+            Long userId = userService.getUserIdFromToken(bearerToken);
             eventService.makeDrawAndSendInformationToParticipantsAndSavePairsInDb(eventId, userId);
             return ResponseEntity.ok("The draw has been made");
         } catch (Exception e) {

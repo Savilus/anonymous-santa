@@ -26,9 +26,9 @@ public class InvitationService {
     @Transactional
     public void setGiftReceiverAndSendEmailToGiver(Long invitationId, Long receiverId) {
         Optional<Invitation> invitationOptional = invitationRepository.findById(invitationId);
-        String receiverFullName = invitationRepository.findById(receiverId).get().getFullName();
+        String receiverEmail = invitationRepository.findById(receiverId).get().getParticipantEmail();
         invitationOptional.ifPresentOrElse(invitation -> {
-            invitation.setGiftReceiver(receiverFullName);
+            invitation.setGiftReceiver(receiverEmail);
             invitationRepository.save(invitation);
         }, () -> {
             throw new EntityNotFoundException("Invitation dose not exist.");

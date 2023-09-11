@@ -40,6 +40,8 @@ public class User extends IdCreator implements UserDetails {
     @OneToMany
     private List<Event> events;
 
+    private List<String> preferredGifts;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
             return List.of(new SimpleGrantedAuthority(role.name()));
@@ -69,4 +71,6 @@ public class User extends IdCreator implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
 }
