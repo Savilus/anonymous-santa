@@ -1,8 +1,9 @@
 package io.mkolodziejczyk92.anonymoussanta;
 
 import io.mkolodziejczyk92.anonymoussanta.data.entity.Event;
-import io.mkolodziejczyk92.anonymoussanta.data.entity.Invitation;
 import io.mkolodziejczyk92.anonymoussanta.data.entity.User;
+import io.mkolodziejczyk92.anonymoussanta.data.exceptions.EventNotFoundException;
+import io.mkolodziejczyk92.anonymoussanta.data.exceptions.OrganizerException;
 import io.mkolodziejczyk92.anonymoussanta.data.model.EventDto;
 import io.mkolodziejczyk92.anonymoussanta.data.repository.EventRepository;
 import io.mkolodziejczyk92.anonymoussanta.data.repository.InvitationRepository;
@@ -62,7 +63,7 @@ public class EventServiceTest {
     }
 
     @Test
-    public void testDeleteEvent() {
+    public void testDeleteEvent() throws OrganizerException, EventNotFoundException {
         Long eventId = 1L;
         Long userId = 2L;
         Event event = new Event();
