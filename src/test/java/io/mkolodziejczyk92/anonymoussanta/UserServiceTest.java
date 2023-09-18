@@ -2,6 +2,7 @@ package io.mkolodziejczyk92.anonymoussanta;
 
 import io.mkolodziejczyk92.anonymoussanta.data.config.JwtService;
 import io.mkolodziejczyk92.anonymoussanta.data.entity.User;
+import io.mkolodziejczyk92.anonymoussanta.data.exceptions.UserNotFoundException;
 import io.mkolodziejczyk92.anonymoussanta.data.model.UserDto;
 import io.mkolodziejczyk92.anonymoussanta.data.repository.UserRepository;
 import io.mkolodziejczyk92.anonymoussanta.data.service.UserService;
@@ -63,7 +64,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetUserIdFromToken() {
+    public void testGetUserIdFromToken() throws UserNotFoundException {
         String bearerToken = "Bearer abcdefg";
         String usernameFromToken = "test@example.com";
         User mockUser = new User();
@@ -80,7 +81,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetUserDtoFromToken() {
+    public void testGetUserDtoFromToken() throws UserNotFoundException{
         String bearerToken = "Bearer abcdefg";
         String usernameFromToken = "test@example.com";
         User mockUser = new User();
@@ -95,7 +96,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testSaveUserGiftChoices() {
+    public void testSaveUserGiftChoices() throws UserNotFoundException{
         String bearerToken = "Bearer abcdefg";
         Long userId = 1L;
         List<String> giftChoices = List.of("Gift1", "Gift2");

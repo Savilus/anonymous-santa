@@ -42,6 +42,10 @@ public class User extends IdCreator implements UserDetails {
 
     private List<String> preferredGifts;
 
+    public String getFullName(){
+        return firstName + " " + lastName;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
             return List.of(new SimpleGrantedAuthority(role.name()));
