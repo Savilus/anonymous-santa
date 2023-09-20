@@ -32,9 +32,11 @@ public class UserController {
 
             userService.saveUserGiftChoices(bearerToken, userGiftChoices);
             return ResponseEntity.ok().body("Gifts chosen successfully!");
+    }
 
-
-
+    @GetMapping("/gifts")
+    public ResponseEntity<String> getUserGiftChoices(@RequestHeader("Authorization") String bearerToken) throws UserNotFoundException {
+        return ResponseEntity.ok().body(userService.getUserGiftChoices(bearerToken));
     }
 
 

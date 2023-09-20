@@ -7,6 +7,7 @@ import io.mkolodziejczyk92.anonymoussanta.data.model.UserDto;
 import io.mkolodziejczyk92.anonymoussanta.data.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -47,6 +48,7 @@ public class UserService {
                         .email(user.getEmail())
                         .firstName(user.getFirstName())
                         .lastName(user.getLastName())
+                        .preferredGifts(user.getPreferredGifts())
                         .build())
                 .orElseThrow(() -> new UserNotFoundException("User not found."));
     }
@@ -57,6 +59,15 @@ public class UserService {
         User user = userRepository.findById(userIdFromToken).orElseThrow(() -> new UserNotFoundException("User not found."));
         user.setPreferredGifts(userGiftChoices);
         userRepository.save(user);
+
+    }
+
+    public String getUserGiftChoices(String bearerToken) throws UserNotFoundException {
+       if(getUserDtoFromToken(bearerToken).getPreferredGifts() == null){
+           return "For now you did not choose any preferred gifts!";
+       }
+        String preferredGiftsMessage = String.join(", ", getUserDtoFromToken(bearerToken).getPreferredGifts());
+        return "You prefer to get " + preferredGiftsMessage + ".";
 
     }
 }
