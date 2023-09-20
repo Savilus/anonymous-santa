@@ -3,6 +3,8 @@ package io.mkolodziejczyk92.anonymoussanta.data.authentication;
 import io.mkolodziejczyk92.anonymoussanta.data.config.JwtService;
 import io.mkolodziejczyk92.anonymoussanta.data.entity.User;
 import io.mkolodziejczyk92.anonymoussanta.data.enums.ERole;
+import io.mkolodziejczyk92.anonymoussanta.data.exceptions.UserAlreadyExistException;
+import io.mkolodziejczyk92.anonymoussanta.data.exceptions.UserNotFoundException;
 import io.mkolodziejczyk92.anonymoussanta.data.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,6 +23,10 @@ public class AuthService {
     private final UserRepository userRepository;
 
     public String register(RegisterRequest request) {
+        userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
+            throw new UserAlreadyExistException("Email already exist");
+        });
+
         User user = User.builder()
                 .email(request.getEmail())
                 .password(encoder.encode(request.getPassword()))
