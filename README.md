@@ -29,15 +29,6 @@ The main part allows users:
 - Once all invited participants join the resulting event, a drawing for gifts can be held. After the drawing, each participant will receive an email notification of the drawing held. After entering the site, the user will see the person to whom he or she is to buy a gift and what gift he or she prefers. No one knows from whom they will receive a gift, which allows you to remain anonymous and surprise the other person on the day when the gifts will be handed out.
 - After all you can easily delete the event you want.
 
-***
-![frontPage](https://github.com/Savilus/anonymous-santa/blob/master/anonymousSanta%20ss/santa%20frtont%20page.png?raw=true)
-![signUp](https://github.com/Savilus/anonymous-santa/blob/master/anonymousSanta%20ss/santa%20sign%20up.png?raw=true)
-![joinToTheEvent](https://github.com/Savilus/anonymous-santa/blob/master/anonymousSanta%20ss/santa%20join%20to%20the%20event.png?raw=true)
-![participants](https://github.com/Savilus/anonymous-santa/blob/master/anonymousSanta%20ss/santa%20participants%20and%20events.png?raw=true)
-![email](https://github.com/Savilus/anonymous-santa/blob/master/anonymousSanta%20ss/santa%20email%20title.png?raw=true)
-![events](https://github.com/Savilus/anonymous-santa/blob/master/anonymousSanta%20ss/santa%20buy%20gift%20for.png?raw=true)
-![deleteEvent](https://github.com/Savilus/anonymous-santa/blob/master/anonymousSanta%20ss/santa%20delete%20event.png?raw=true)
-***
 ### Running the application
 ***
 
@@ -64,6 +55,16 @@ https://github.com/Savilus/anonymous-santa
 **6** Create an account and enjoy!
 
 #
+
+***
+![frontPage](https://github.com/Savilus/anonymous-santa/blob/master/anonymousSanta%20ss/santa%20frtont%20page.png?raw=true)
+![signUp](https://github.com/Savilus/anonymous-santa/blob/master/anonymousSanta%20ss/santa%20sign%20up.png?raw=true)
+![joinToTheEvent](https://github.com/Savilus/anonymous-santa/blob/master/anonymousSanta%20ss/santa%20join%20to%20the%20event.png?raw=true)
+![participants](https://github.com/Savilus/anonymous-santa/blob/master/anonymousSanta%20ss/santa%20participants%20and%20events.png?raw=true)
+![email](https://github.com/Savilus/anonymous-santa/blob/master/anonymousSanta%20ss/santa%20email%20title.png?raw=true)
+![events](https://github.com/Savilus/anonymous-santa/blob/master/anonymousSanta%20ss/santa%20buy%20gift%20for.png?raw=true)
+![deleteEvent](https://github.com/Savilus/anonymous-santa/blob/master/anonymousSanta%20ss/santa%20delete%20event.png?raw=true)
+***
 
 Created by 
 * Marcin Kołodziejczyk
