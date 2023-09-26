@@ -48,11 +48,11 @@ https://github.com/Savilus/anonymous-santa
 
 **3.** Before first start type in VSC `````npm i````` to install everything you need after that start your frontend application through terminal typing `````npm start`````. 
 
-**4** Now start backend application from `````AnonymousSantaApplication.java````` class.
+**4.** Now start backend application from `````AnonymousSantaApplication.java````` class.
 
-**5**  Open ````http://localhost:3000```` in your browser. Frontend and backend will communicate with each other.
+**5.**  Open ````http://localhost:3000```` in your browser. Frontend and backend will communicate with each other.
 
-**6** Create an account and enjoy!
+**6.** Create an account and enjoy!
 
 #
 
